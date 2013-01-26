@@ -115,7 +115,7 @@ def depthFirstSearch(problem):
 # curState[0] = dir
 # curState[0] = score
 # dirs = path to the food
-# frontier = non explored nodes (the stack)
+# frontier = non explored nodes (the stack) 
 # explored = the explored nodes (an array)
 
 # note: we use the boolean in orver to backtrack
@@ -150,11 +150,12 @@ def breadthFirstSearch(problem):
     e = Directions.EAST
     n = Directions.NORTH
 
-    startState = (problem.getStartState(), "No Direction", 1)
+    startState = problem.getStartState()
+    startStateNode = (problem.getStartState(), "No Direction", 1)
     if problem.isGoalState(problem.getStartState()):
         return []
-        #print "start state: ", startState
-    directions, possible_path = BFSHelper (problem, curState=startState, frontier = [startState]) #problem and current state's location
+    #print "start state: ", startState
+    directions, possible_path = BFSHelper (problem, curState=startState, frontier = [startStateNode]) #problem and current state's location
     if not possible_path: print "COULDN'T FIND ANYTHING"
     path = bfsPathHelper(directions)
     #print "final path returned: ", path
@@ -170,14 +171,14 @@ def breadthFirstSearch(problem):
 # curState[0] = dir
 # curState[0] = score
 # dirs = path to the food
-# frontier = non explored nodes (the stack)
+# frontier = non explored nodes (the stack) 
 # explored = the explored nodes (an array)
 
+#curState = (x, y)
+#frontier = list of stateNodes
+#explored = list of tuples: (newState, dir, pathcost), (newState, dir, pathcost)
 # note: we use the boolean in orver to backtrack
 def BFSHelper (problem, curState, frontier, explored = [], possible_path = False):
-    # print "Is 11 the goal state ", problem.isGoalState((1,1))
-    #print "just came in"
-    #print "curState inside BFS: ", curState
     #Base case
     while len(frontier) is not 0:
         #print "iterating"
@@ -186,39 +187,22 @@ def BFSHelper (problem, curState, frontier, explored = [], possible_path = False
 
         # frontier is a list of triplets
         parentState = curState
-        curState = frontier.pop(0)
-        # explored now holds the triplet ( (posx,poxy), direction, points ) for
-        # the current state and the parent state
-        # WRONG explored.append([curState, parentState])
+        curStateNode = frontier.pop(0)
+        curState = curStateNode[0]
 
-        # successors holds list of triplets of successors
-        print "curState now: ", curState
-        successors = problem.getSuccessors(curState[0])
-        #print "these are the succcessors: ", successors
-        directions = ["East","West","North","South"]
-        if curState[0][1] not in directions:x
-            explored.append([curState, parentState])
-            if problem.isGoalState(curState[0]):
-                return explored, True
-        for successorNumber in range(len(successors)):
-            if type(successors[successorNumber][0][1]) is not list and successors[successorNumber][0] not in [i[0][0] for i in explored]:
-                if successors[successorNumber][0][1] in directions and problem.isGoalState(successors[successorNumber][0]):
-                    #print successors[successorNumber]
-                    #print "Found the GOAL"
-                    explored.append([successors[successorNumber], curState])
-                    #for i in range(len(explored)):
-                    #    print explored[i]
+        # successorsTriplets holds list of triplets of successorsTriplets
+        successorsTriplets = problem.getSuccessors(curState)
+
+        for successorNumber in range(len(successorsTriplets)):
+            #i[0][0] is the state 
+            if successorsTriplets[successorNumber][0] not in [i[0][0] for i in explored]:
+                currentSuccessor = successorsTriplets[successorNumber][0]
+                if problem.isGoalState(currentSuccessor):
+                    explored.append([successorsTriplets[successorNumber], curState])
                     return explored, True
                 else:
-                    frontier.append(successors[successorNumber])
-                    explored.append([successors[successorNumber], curState])
-            elif type(successors[successorNumber][0][1]) is list and successors[successorNumber][0] in [i[0][0] for i in explored]:
-                continue
-            elif type(successors[successorNumber][0][1]) is list and successors[successorNumber][0] not in [i[0][0] for i in explored]:
-                frontier.append(successors[successorNumber])
-            else:
-                frontier.append(successors[successorNumber])
-                explored.append([successors[successorNumber], curState])
+                    frontier.append(successorsTriplets[successorNumber])
+                    explored.append([successorsTriplets[successorNumber], curState])
     return explored, False
 
 def bfsPathHelper(explored):
@@ -242,7 +226,7 @@ def bfsPathHelper(explored):
             pathElement = explored.pop()
             if len(explored) is 0 and parent is pathElement[0]:
                 path.append(toDir(pathElement[0][1]))
-        #path.append(saveThis)
+    #path.append(saveThis)
     #print path[::-1]
     return path[::-1]
 
@@ -278,7 +262,7 @@ def uniformCostSearch(problem):
     startState = [(problem.getStartState(), "No Direction", 0), 0]
     if problem.isGoalState(problem.getStartState()):
         return []
-        # initialize frontier as PriorityQueue( (stateTriple), locationUnitCost )
+    # initialize frontier as PriorityQueue( (stateTriple), locationUnitCost )
     startFrontier = PriorityQueue()
     startFrontier.push(startState, startState[0][2])
     directions, possible_path = UCSHelper (problem, curState=startState, frontier = startFrontier)
@@ -297,8 +281,8 @@ def uniformCostSearch(problem):
 # curState[0] = dir
 # curState[0] = score
 # dirs = path to the food
-# frontier = non explored nodes (the stack)
-# explored = the explored nodes (an array)
+# frontier = non explored nodes (the stack) 
+# explored = the explored nodes (an array) 
 
 # note: we use the boolean in orver to backtrack
 def UCSHelper (problem, curState, frontier, explored = [], possible_path = False):
@@ -318,7 +302,7 @@ def UCSHelper (problem, curState, frontier, explored = [], possible_path = False
         curState = frontier.pop()
         oldCost = curState[1]
 
-#        print "curState now: ", curState
+        print "curState now: ", curState
         successors = problem.getSuccessors(curState[0][0])
 
         for successorNumber in range(len(successors)):
@@ -361,7 +345,7 @@ def ucsPathHelper(explored):
             pathElement = explored.pop()
             if len(explored) is 0 and parent is pathElement[0]:
                 path.append(toDir(pathElement[0][1]))
-        #path.append(saveThis)
+    #path.append(saveThis)
     #print path[::-1]
     return path[::-1]
 
@@ -376,7 +360,7 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
     "*** YOUR CODE HERE ***"    # util.raiseNotDefined()
-
+    
     """
    Definitions:
    state = ( (x,y), "dir", pathCost )
@@ -404,9 +388,9 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     explored.append([initialStateNode, initialStateNode])
     if problem.isGoalState(problem.getStartState()):
         return []
-        #path = the path
+    #path = the path
     #foundSol = true if path found; false if no path found
-
+    
     path, foundSol= aStarHelper(problem=problem, curStateNode=initialStateNode,frontier=frontier,heuristic=heuristic, explored = explored)
     if not foundSol: print "COULDN'T FIND ANYTHING"
 
@@ -429,15 +413,15 @@ def aStarHelper(problem, curStateNode, frontier, heuristic, explored):
         #print "curStateGn, ", curStateGn 
         curStateCoords = curStateNode[0][0] #(x,y)
         #print "curStateCoords, ", curStateCoords
-
+        
         #list of successors states (not nodes) of current state
         successors = problem.getSuccessors(curStateCoords)
-
+        
         for successorIndex in range(len(successors)):
             thisSuccessor = successors[successorIndex]
             #print "sucessorIndex: ", sucessorIndex
             #sucessorIndex's g(n) = parent's g(n) + cost of going from parent to this sucessorIndex
-            successorGn = curStateGn + thisSuccessor[2]
+            successorGn = curStateGn + thisSuccessor[2] 
             successorFn = successorGn + heuristic(curStateCoords, problem)
             #print "explored ",  explored
             #print "successor's location: ", successors[sucessorIndex][0]
@@ -451,12 +435,12 @@ def aStarHelper(problem, curStateNode, frontier, heuristic, explored):
                 #oldFN = FN of node in explored
                 print successorFn - oldFn
                 if oldFn > successorFn:
-                    print "In if statement in aStarHelper. This statement needs to be fixed."
-                    #    remove the element in explored containing oldFN
-                    explored[i] = [thisSuccessor, successorGn]
-
+                   print "In if statement in aStarHelper. This statement needs to be fixed."
+                   #    remove the element in explored containing oldFN
+                   explored[i] = [thisSuccessor, successorGn]  
+                   
                 else: continue # Required to go to next successor in for-loop
-
+               
             else:
                 successorNode = (thisSuccessor, successorGn)
                 explored.append([successorNode, curStateNode])
@@ -464,7 +448,7 @@ def aStarHelper(problem, curStateNode, frontier, heuristic, explored):
                 if problem.isGoalState(successorNode[0][0]) :
                     return explored, True
 
-
+        
 
 def aStarPathHelper(explored):
     """
@@ -475,16 +459,16 @@ def aStarPathHelper(explored):
     saveThis = toDir(explored[0][0][0][1]) #dir
     path = []
     pathElement = explored.pop() #[stateNodeChild, stateNodeParent]
-
+    
     while len(explored) is not 0:
         # Add direction to this location to path list
         path.append(toDir(pathElement[0][0][1])) #dir
         # save parent location so it can be looked for
         #  similar to a linked list
         parent = pathElement[1][0] #state
-
+        
         if len(explored) is not 0: pathElement = explored.pop()
-
+        
         while parent != pathElement[0][0] and len(explored) is not 0:
             #print "parent: ", parent[0]
             #print "pathEl: ", pathElement[0][0][0]
@@ -492,7 +476,7 @@ def aStarPathHelper(explored):
             pathElement = explored.pop()
             if len(explored) is 0 and parent is pathElement[0][0]:
                 path.append(toDir(pathElement[0][0][1]))
-        #path.append(saveThis)
+    #path.append(saveThis)
     #print path[::-1]
     return path[::-1]
 
